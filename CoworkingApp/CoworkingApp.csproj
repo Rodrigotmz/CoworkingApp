@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CoworkingApp.Data\CoworkingApp.Data.csproj" />
+    <ProjectReference Include="..\CoworkingApp.Model\CoworkingApp.Model.csproj" />
+  </ItemGroup>
+
 </Project>
