@@ -1,1 +1,4 @@
-﻿Console.WriteLine("Hello, World!");
+﻿using CoworkingApp.Data;
+
+var userData = new UserData();
+userData.CreateAdmin();
