@@ -1,7 +1,9 @@
 ﻿using CoworkingApp.Data;
+using CoworkingApp.Data.Enums;
 using static System.Console;
 
 string rolSelected = "";
+var listOption = new List<string> { "1", "2", "3","4"};
 do
 {
     Clear();
@@ -9,64 +11,80 @@ do
     WriteLine("Por favor seleccione un rol: 1 - Admin, 2 - Usuario");
     rolSelected = ReadLine();
 
-    if (rolSelected == "1")
+    if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Admin)
     {
         string menuAdminSelected = "";
-        while (menuAdminSelected != "1" && menuAdminSelected != "2")
+        while (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionPuestos && 
+            Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
         {
             WriteLine("1 - Administracion de puestos, 2 - Administracion de usuarios");
             menuAdminSelected = ReadLine();
         }
-        if (menuAdminSelected == "1")
+        if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionPuestos)
         {
             string menuPuestoSelected = "";
-            while (menuPuestoSelected != "1" && menuPuestoSelected != "2" && menuPuestoSelected != "3" && menuPuestoSelected != "4")
+            while (!listOption.Contains(menuPuestoSelected))
             {
                 Clear();
                 WriteLine("Administracion de puestos");
                 WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Bloquear");
                 menuPuestoSelected = ReadLine();
             }
-            var menuSelected = menuPuestoSelected switch
+
+            AdminPuestos selectedAdminPuesto = Enum.Parse<AdminPuestos>(menuPuestoSelected);
+
+            var menuSelected = selectedAdminPuesto switch
             {
-                "1" => "Opcion de Crear",
-                "2" => "Opcion Editar",
-                "3" => "Opcion Eliminar",
-                "4" => "Opcion Bloquear",
+                AdminPuestos.Crear => "Opcion de Crear",
+                AdminPuestos.Editar => "Opcion Editar",
+                AdminPuestos.Eliminar => "Opcion Eliminar",
+                AdminPuestos.Bloquear => "Opcion Bloquear",
                 _ => "No se ha seleccionado ninguna opcion"
             };
             WriteLine(menuSelected);
         }
-        else if (menuAdminSelected == "2")
+        else if (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
         {
             string menuUsuariosSelected = "";
-            while (menuUsuariosSelected != "1" && menuUsuariosSelected != "2" && menuUsuariosSelected != "3" && menuUsuariosSelected != "4")
+            while (!listOption.Contains(menuUsuariosSelected))
             {
                 Clear();
-                WriteLine("Administracion de puestos");
-                WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Bloquear");
+                WriteLine("Administracion de usuarios");
+                WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Cambiar contrasena");
                 menuUsuariosSelected = ReadLine();
             }
-            var menuSelected = menuUsuariosSelected switch
+            AdminUser selectedUserOptions = Enum.Parse<AdminUser>(menuUsuariosSelected);
+            var menuSelected = selectedUserOptions switch
             {
-                "1" => "Opcion de Crear usuario",
-                "2" => "Opcion Editar usuario",
-                "3" => "Opcion Eliminar usuario",
-                "4" => "Opcion Bloquear usuario",
+                AdminUser.Crear => "Opcion de Crear usuario",
+                AdminUser.Editar => "Opcion Editar usuario",
+                AdminUser.Eliminar => "Opcion Eliminar usuario",
+                AdminUser.CambiarPassword => "Opcion Cambiar contrasena de usuario",
                 _ => "No se ha seleccionado ninguna opcion"
             };
             WriteLine(menuSelected);
         }
     }
-    else if(rolSelected == "2")
+    else if(Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
     {
-        string menuAdminSelected = "";
-        while (menuAdminSelected != "1" && menuAdminSelected != "2")
+        string menuUsuarioSelec = "";
+        while (!listOption.Contains(menuUsuarioSelec))
         {
-            WriteLine("1 - Administracion de puestos, 2 - Administracion de usuarios");
-            menuAdminSelected = ReadLine();
+            WriteLine("1 - Reservar puesto, 2- Cancelar reserva, 3 - Ver el historial de reserva, 4 - Cambiar contraseña");
+            menuUsuarioSelec = ReadLine();
         }
+        MenuUser selectedUserMenu = Enum.Parse<MenuUser>(menuUsuarioSelec);
+        var menuUsarioSelected = selectedUserMenu switch
+        {
+            MenuUser.ReservarPuesto => "Opcion de Reservar puesto",
+            MenuUser.CancelarReserva => "Opcion Cancelar reserva",
+            MenuUser.VerHistorialReserva => "Opcion Ver el historial de reserva",
+            MenuUser.CambiarPassword => "Opcion Cambiar contraseña",
+            _ => "No se ha seleccionado ninguna opcion"
+        };
+        WriteLine(menuUsarioSelected);
+
     }
 
-} while (rolSelected != "1" && rolSelected != "2");
+} while (Enum.Parse<UserRoles>(rolSelected) != UserRoles.Admin && Enum.Parse<UserRoles>(rolSelected) != UserRoles.Usuario);
 WriteLine("Programa terminado");
