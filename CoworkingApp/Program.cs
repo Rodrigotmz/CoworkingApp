@@ -1,9 +1,11 @@
 ﻿using CoworkingApp.Data;
 using CoworkingApp.Data.Enums;
 using static System.Console;
+using static CoworkingApp.Data.Tools.MessageColors;
 
 string rolSelected = "";
-var listOption = new List<string> { "1", "2", "3","4"};
+var listOption = new List<string> { "1", "2", "3", "4" };
+UserData UserDataServicers = new UserData();
 do
 {
     Clear();
@@ -13,10 +15,25 @@ do
 
     if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Admin)
     {
-        string menuAdminSelected = "";
-        while (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionPuestos && 
-            Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
+        bool loginResult = false;
+        while (!loginResult)
         {
+            WriteLine("Ingrese usuario");
+            var userLogin = ReadLine();
+            WriteLine("Ingrese la contrasena");
+            var passwordLogin = GetPassword();
+            loginResult = UserDataServicers.Login(userLogin, passwordLogin);
+
+            if (!loginResult)
+            {
+                ErrorMessage("Usuario o contrasena equivocados");
+            }
+        }
+
+        string? menuAdminSelected = "0";
+        while (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionPuestos && Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
+        {
+            OkMessage("Bienvenido nuevamente");
             WriteLine("1 - Administracion de puestos, 2 - Administracion de usuarios");
             menuAdminSelected = ReadLine();
         }
@@ -45,7 +62,7 @@ do
         }
         else if (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
         {
-            string menuUsuariosSelected = "";
+            string menuUsuariosSelected = "0";
             while (!listOption.Contains(menuUsuariosSelected))
             {
                 Clear();
@@ -65,9 +82,9 @@ do
             WriteLine(menuSelected);
         }
     }
-    else if(Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
+    else if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
     {
-        string menuUsuarioSelec = "";
+        string menuUsuarioSelec = "0";
         while (!listOption.Contains(menuUsuarioSelec))
         {
             WriteLine("1 - Reservar puesto, 2- Cancelar reserva, 3 - Ver el historial de reserva, 4 - Cambiar contraseña");
@@ -88,3 +105,23 @@ do
 
 } while (Enum.Parse<UserRoles>(rolSelected) != UserRoles.Admin && Enum.Parse<UserRoles>(rolSelected) != UserRoles.Usuario);
 WriteLine("Programa terminado");
+
+static string GetPassword()
+{
+    string passwordInput = "";
+    while (true)
+    {
+        var keyPress = ReadKey(true);
+        if(keyPress.Key == ConsoleKey.Enter)
+        {
+            WriteLine(" ");
+            break;
+        }
+        else
+        {
+            Write("*");
+            passwordInput += keyPress.KeyChar;
+        }
+    }
+    return passwordInput;
+}
