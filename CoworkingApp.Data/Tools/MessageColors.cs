@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CoworkingApp.Data.Tools
 {
@@ -28,6 +29,17 @@ namespace CoworkingApp.Data.Tools
             ForegroundColor= ConsoleColor.Green;
             WriteLine(message);
             ResetColor();
+        }
+        public static void ConditionalMessage(bool conditional, string message)
+        {
+            if (conditional)
+            {
+                OkMessage(message);
+            }
+            else
+            {
+                WarningMessage(message);
+            }
         }
     }
 }

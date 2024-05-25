@@ -23,7 +23,7 @@ namespace CoworkingApp.Data
             }
             else
             {
-                var jsonCollection = JsonConvert.SerializeObject(myCollection);
+                var jsonCollection = JsonConvert.SerializeObject(myCollection, Formatting.Indented);
                 var streamWriter = new StreamWriter(collectionPath);
                 streamWriter.Write(jsonCollection);
                 streamWriter.Close();
@@ -36,7 +36,7 @@ namespace CoworkingApp.Data
             string collectionPath = $@"{Directory.GetCurrentDirectory()}/{typeof(T)}.json";
             try
             {
-                var jsonCollection = JsonConvert.SerializeObject(collection);
+                var jsonCollection = JsonConvert.SerializeObject(collection, Formatting.Indented);
                 var streamWriter = new StreamWriter(collectionPath);
                 streamWriter.Write(jsonCollection);
                 streamWriter.Close();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CoworkingApp.Data.Tools;
+using CoworkingApp.Data.Methods;
 
 namespace CoworkingApp.Data
 {
@@ -46,6 +47,58 @@ namespace CoworkingApp.Data
             var userFound = userCollection.FirstOrDefault(p => p.Email == User && p.Password == passwordEncript);
             if(userFound != null) return true;
             return false;
+        }
+
+        public (string, bool) CreateUser(User newUser)
+        {
+            try
+            {
+                newUser.Password = EncryptData.EncryptText(newUser.Password);
+                var userCollection = jsManager.GetCollection();
+                userCollection.Add(newUser);
+                jsManager.SaveCollection(userCollection);
+                return ("Usuario creado exitosamente",true);
+            }
+            catch
+            {
+                return ("No se pudo crear el usuario, por favor intente más tarde",false);
+            }
+        }
+        public User FindUser(string email)
+        {
+            var userCollection = jsManager.GetCollection();
+            return userCollection.FirstOrDefault(p => p.Email == email);
+        }
+        public (string, bool) EditUser(User editUser)
+        {
+            try
+            {
+                editUser.Password = EncryptData.EncryptText(editUser.Password);
+                var userCollection = jsManager.GetCollection();
+                var indexUser = userCollection.FindIndex(p => p.UserId == editUser.UserId);
+                userCollection[indexUser] = editUser;
+                jsManager.SaveCollection(userCollection);
+                return ("Cambios realizados con exito", true);
+            }
+            catch
+            {
+                return ("No se pudo editar el usuario seleccionado, por favor intente más tarde", false);
+            }
+        }
+        public (string,bool) RemoveUser(Guid userId)
+        {
+            try
+            {
+                var userCollection = jsManager.GetCollection();
+                var idUser = userCollection.Find(p => p.UserId == userId);
+                userCollection.Remove(idUser);
+                jsManager.SaveCollection(userCollection);
+                return ("Usuario removido con exito", true);
+            }
+            catch
+            {
+                return ("El usuario no se pudo remover", false);
+            }
         }
     }
 }

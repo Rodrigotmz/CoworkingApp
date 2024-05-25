@@ -1,15 +1,20 @@
 ﻿using CoworkingApp.Data;
 using CoworkingApp.Data.Enums;
+using CoworkingApp.Data.Logic;
+using CoworkingApp.Data.Tools;
 using static System.Console;
 using static CoworkingApp.Data.Tools.MessageColors;
+
 
 string rolSelected = "";
 var listOption = new List<string> { "1", "2", "3", "4" };
 UserData UserDataServicers = new UserData();
+var userLogicServices = new UserServices(UserDataServicers);
+string horaActual =  DateTime.Now.ToString("hh:mm tt");
 do
 {
     Clear();
-    WriteLine("Bienvenido a la app de Coworking");
+    WriteLine($"[{horaActual}] Bienvenido a la app de Coworking");
     WriteLine("Por favor seleccione un rol: 1 - Admin, 2 - Usuario");
     rolSelected = ReadLine();
 
@@ -21,7 +26,7 @@ do
             WriteLine("Ingrese usuario");
             var userLogin = ReadLine();
             WriteLine("Ingrese la contrasena");
-            var passwordLogin = GetPassword();
+            var passwordLogin = EncryptData.GetPassword();
             loginResult = UserDataServicers.Login(userLogin, passwordLogin);
 
             if (!loginResult)
@@ -60,7 +65,7 @@ do
             };
             WriteLine(menuSelected);
         }
-        else if (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
+        else if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionUsuarios)
         {
             string menuUsuariosSelected = "0";
             while (!listOption.Contains(menuUsuariosSelected))
@@ -71,15 +76,8 @@ do
                 menuUsuariosSelected = ReadLine();
             }
             AdminUser selectedUserOptions = Enum.Parse<AdminUser>(menuUsuariosSelected);
-            var menuSelected = selectedUserOptions switch
-            {
-                AdminUser.Crear => "Opcion de Crear usuario",
-                AdminUser.Editar => "Opcion Editar usuario",
-                AdminUser.Eliminar => "Opcion Eliminar usuario",
-                AdminUser.CambiarPassword => "Opcion Cambiar contrasena de usuario",
-                _ => "No se ha seleccionado ninguna opcion"
-            };
-            WriteLine(menuSelected);
+            var datos = userLogicServices.ExecuteAction(selectedUserOptions);
+            ConditionalMessage(datos.Item2, datos.Item1);
         }
     }
     else if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
@@ -104,24 +102,4 @@ do
     }
 
 } while (Enum.Parse<UserRoles>(rolSelected) != UserRoles.Admin && Enum.Parse<UserRoles>(rolSelected) != UserRoles.Usuario);
-WriteLine("Programa terminado");
-
-static string GetPassword()
-{
-    string passwordInput = "";
-    while (true)
-    {
-        var keyPress = ReadKey(true);
-        if(keyPress.Key == ConsoleKey.Enter)
-        {
-            WriteLine(" ");
-            break;
-        }
-        else
-        {
-            Write("*");
-            passwordInput += keyPress.KeyChar;
-        }
-    }
-    return passwordInput;
-}
+WriteLine($"[{horaActual}] Programa terminado");
