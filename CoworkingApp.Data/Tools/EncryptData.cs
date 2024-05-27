@@ -30,6 +30,11 @@ namespace CoworkingApp.Data.Tools
                     WriteLine(" ");
                     break;
                 }
+                else if (keyPress.Key == ConsoleKey.Backspace && passwordInput.Length > 0)
+                {
+                    passwordInput = passwordInput[..^1]; // Remove the last character
+                    Write("\b \b"); // Move back, overwrite the character with space, and move back again
+                }
                 else
                 {
                     Write("*");

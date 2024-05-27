@@ -9,6 +9,8 @@ using static CoworkingApp.Data.Tools.MessageColors;
 string rolSelected = "";
 var listOption = new List<string> { "1", "2", "3", "4" };
 UserData UserDataServicers = new UserData();
+DeskData deskData = new DeskData();
+var deskLogicServices = new DeskServices(deskData);
 var userLogicServices = new UserServices(UserDataServicers);
 string horaActual =  DateTime.Now.ToString("hh:mm tt");
 do
@@ -54,16 +56,9 @@ do
             }
 
             AdminPuestos selectedAdminPuesto = Enum.Parse<AdminPuestos>(menuPuestoSelected);
-
-            var menuSelected = selectedAdminPuesto switch
-            {
-                AdminPuestos.Crear => "Opcion de Crear",
-                AdminPuestos.Editar => "Opcion Editar",
-                AdminPuestos.Eliminar => "Opcion Eliminar",
-                AdminPuestos.Bloquear => "Opcion Bloquear",
-                _ => "No se ha seleccionado ninguna opcion"
-            };
-            WriteLine(menuSelected);
+            var deskInfo = deskLogicServices.ExecuteAction(selectedAdminPuesto);
+            ConditionalMessage(deskInfo.Item2,deskInfo.Item1);
+            
         }
         else if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionUsuarios)
         {
