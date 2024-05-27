@@ -12,7 +12,7 @@ UserData UserDataServicers = new UserData();
 DeskData deskData = new DeskData();
 var deskLogicServices = new DeskServices(deskData);
 var userLogicServices = new UserServices(UserDataServicers);
-string horaActual =  DateTime.Now.ToString("hh:mm tt");
+string horaActual = DateTime.Now.ToString("hh:mm tt");
 do
 {
     Clear();
@@ -29,7 +29,7 @@ do
             var userLogin = ReadLine();
             WriteLine("Ingrese la contrasena");
             var passwordLogin = EncryptData.GetPassword();
-            loginResult = UserDataServicers.Login(userLogin, passwordLogin);
+            loginResult = UserDataServicers.Login(userLogin, passwordLogin, true);
 
             if (!loginResult)
             {
@@ -38,45 +38,62 @@ do
         }
 
         string? menuAdminSelected = "0";
-        while (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionPuestos && Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
+        while (true)
         {
-            OkMessage("Bienvenido nuevamente");
-            WriteLine("1 - Administracion de puestos, 2 - Administracion de usuarios");
-            menuAdminSelected = ReadLine();
-        }
-        if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionPuestos)
-        {
-            string menuPuestoSelected = "";
-            while (!listOption.Contains(menuPuestoSelected))
+            while (Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionPuestos && Enum.Parse<MenuAdmin>(menuAdminSelected) != MenuAdmin.AdministracionUsuarios)
             {
-                Clear();
-                WriteLine("Administracion de puestos");
-                WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Bloquear");
-                menuPuestoSelected = ReadLine();
+                OkMessage("Bienvenido nuevamente");
+                WriteLine("1 - Administracion de puestos, 2 - Administracion de usuarios");
+                menuAdminSelected = ReadLine();
             }
+            if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionPuestos)
+            {
+                string menuPuestoSelected = "";
+                while (!listOption.Contains(menuPuestoSelected))
+                {
+                    WriteLine("Administracion de puestos");
+                    WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Bloquear");
+                    menuPuestoSelected = ReadLine();
+                }
 
-            AdminPuestos selectedAdminPuesto = Enum.Parse<AdminPuestos>(menuPuestoSelected);
-            var deskInfo = deskLogicServices.ExecuteAction(selectedAdminPuesto);
-            ConditionalMessage(deskInfo.Item2,deskInfo.Item1);
-            
-        }
-        else if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionUsuarios)
-        {
-            string menuUsuariosSelected = "0";
-            while (!listOption.Contains(menuUsuariosSelected))
-            {
-                Clear();
-                WriteLine("Administracion de usuarios");
-                WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Cambiar contrasena");
-                menuUsuariosSelected = ReadLine();
+                AdminPuestos selectedAdminPuesto = Enum.Parse<AdminPuestos>(menuPuestoSelected);
+                var deskInfo = deskLogicServices.ExecuteAction(selectedAdminPuesto);
+                ConditionalMessage(deskInfo.Item2, deskInfo.Item1);
+
             }
-            AdminUser selectedUserOptions = Enum.Parse<AdminUser>(menuUsuariosSelected);
-            var datos = userLogicServices.ExecuteAction(selectedUserOptions);
-            ConditionalMessage(datos.Item2, datos.Item1);
+            else if (Enum.Parse<MenuAdmin>(menuAdminSelected) == MenuAdmin.AdministracionUsuarios)
+            {
+                string menuUsuariosSelected = "0";
+                while (!listOption.Contains(menuUsuariosSelected))
+                {
+                    Clear();
+                    WriteLine("Administracion de usuarios");
+                    WriteLine("1 - Crear, 2 - Editar, 3 - Eliminar, 4 - Cambiar contrasena");
+                    menuUsuariosSelected = ReadLine();
+                }
+                AdminUser selectedUserOptions = Enum.Parse<AdminUser>(menuUsuariosSelected);
+                var datos = userLogicServices.ExecuteAction(selectedUserOptions);
+                ConditionalMessage(datos.Item2, datos.Item1);
+            }
+            menuAdminSelected = "0";
         }
     }
     else if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
     {
+        bool loginResult = false;
+        while (!loginResult)
+        {
+            WriteLine("Ingrese usuario");
+            var userLogin = ReadLine();
+            WriteLine("Ingrese la contrasena");
+            var passwordLogin = EncryptData.GetPassword();
+            loginResult = UserDataServicers.Login(userLogin, passwordLogin, false);
+
+            if (!loginResult)
+            {
+                ErrorMessage("Usuario o contrasena equivocados");
+            }
+        }
         string menuUsuarioSelec = "0";
         while (!listOption.Contains(menuUsuarioSelec))
         {

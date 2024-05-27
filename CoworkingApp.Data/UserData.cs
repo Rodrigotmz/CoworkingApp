@@ -43,7 +43,7 @@ namespace CoworkingApp.Data
         {
             var userCollection = jsManager.GetCollection();
             var passwordEncript = EncryptData.EncryptText(Password);
-            if (isAdmin) User = "ADMIN";
+            if (isAdmin) User = User;
             var userFound = userCollection.FirstOrDefault(p => p.Email == User && p.Password == passwordEncript);
             if(userFound != null) return true;
             return false;

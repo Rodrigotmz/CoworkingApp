@@ -23,7 +23,7 @@ namespace CoworkingApp.Data.Logic
                 AdminPuestos.Crear => _data.CreateDesk(MethodsDesk.CreateDesk()),
                 AdminPuestos.Editar => EditDesk(),
                 AdminPuestos.Eliminar => RemoveDesk(),
-                AdminPuestos.Bloquear => ("", false),
+                AdminPuestos.Bloquear => BlockedDesk(),
                 _ => ("No se ha seleccionado ninguna opcion", false)
             };
             return actionSelected;
