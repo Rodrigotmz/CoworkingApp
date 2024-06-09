@@ -41,5 +41,13 @@ namespace CoworkingApp.Data.Methods
             }
             catch { return editDesk; }
         }
+        public static Reservation Createreservation(Guid user, Guid Desk, DateTime reservation)
+        {
+            var deskNew = new Reservation();
+            deskNew.ReservationDate = reservation;
+            deskNew.UserId = user;
+            deskNew.DeskId = Desk;
+            return deskNew;
+        }
     }
 }

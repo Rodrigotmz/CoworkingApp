@@ -2,6 +2,7 @@
 using CoworkingApp.Data.Enums;
 using CoworkingApp.Data.Logic;
 using CoworkingApp.Data.Tools;
+using CoworkingApp.Model;
 using static System.Console;
 using static CoworkingApp.Data.Tools.MessageColors;
 
@@ -11,8 +12,10 @@ var listOption = new List<string> { "1", "2", "3", "4" };
 UserData UserDataServicers = new UserData();
 DeskData deskData = new DeskData();
 var deskLogicServices = new DeskServices(deskData);
-var userLogicServices = new UserServices(UserDataServicers);
+var adminLogicServices = new AdminServices(UserDataServicers);
+var userActions = new UserServices(UserDataServicers, deskData);
 string horaActual = DateTime.Now.ToString("hh:mm tt");
+User Activeuser = new User();
 do
 {
     Clear();
@@ -22,20 +25,7 @@ do
 
     if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Admin)
     {
-        bool loginResult = false;
-        while (!loginResult)
-        {
-            WriteLine("Ingrese usuario");
-            var userLogin = ReadLine();
-            WriteLine("Ingrese la contrasena");
-            var passwordLogin = EncryptData.GetPassword();
-            loginResult = UserDataServicers.Login(userLogin, passwordLogin, true);
-
-            if (!loginResult)
-            {
-                ErrorMessage("Usuario o contrasena equivocados");
-            }
-        }
+        Activeuser = adminLogicServices.Login(true);
 
         string? menuAdminSelected = "0";
         while (true)
@@ -72,28 +62,15 @@ do
                     menuUsuariosSelected = ReadLine();
                 }
                 AdminUser selectedUserOptions = Enum.Parse<AdminUser>(menuUsuariosSelected);
-                var datos = userLogicServices.ExecuteAction(selectedUserOptions);
-                ConditionalMessage(datos.Item2, datos.Item1);
+                var datos = adminLogicServices.ExecuteAction(selectedUserOptions);
+                ConditionalMessage(datos.option, datos.message); 
             }
             menuAdminSelected = "0";
         }
     }
     else if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
     {
-        bool loginResult = false;
-        while (!loginResult)
-        {
-            WriteLine("Ingrese usuario");
-            var userLogin = ReadLine();
-            WriteLine("Ingrese la contrasena");
-            var passwordLogin = EncryptData.GetPassword();
-            loginResult = UserDataServicers.Login(userLogin, passwordLogin, false);
-
-            if (!loginResult)
-            {
-                ErrorMessage("Usuario o contrasena equivocados");
-            }
-        }
+        Activeuser = adminLogicServices.Login(false);
         string menuUsuarioSelec = "0";
         while (!listOption.Contains(menuUsuarioSelec))
         {
@@ -101,16 +78,7 @@ do
             menuUsuarioSelec = ReadLine();
         }
         MenuUser selectedUserMenu = Enum.Parse<MenuUser>(menuUsuarioSelec);
-        var menuUsarioSelected = selectedUserMenu switch
-        {
-            MenuUser.ReservarPuesto => "Opcion de Reservar puesto",
-            MenuUser.CancelarReserva => "Opcion Cancelar reserva",
-            MenuUser.VerHistorialReserva => "Opcion Ver el historial de reserva",
-            MenuUser.CambiarPassword => "Opcion Cambiar contraseña",
-            _ => "No se ha seleccionado ninguna opcion"
-        };
-        WriteLine(menuUsarioSelected);
-
+        userActions.ExecuteAction(selectedUserMenu,Activeuser);
     }
 
 } while (Enum.Parse<UserRoles>(rolSelected) != UserRoles.Admin && Enum.Parse<UserRoles>(rolSelected) != UserRoles.Usuario);

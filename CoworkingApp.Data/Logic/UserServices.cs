@@ -1,10 +1,8 @@
 ﻿using CoworkingApp.Data.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CoworkingApp.Model;
+using System.Globalization;
 using static System.Console;
+using static CoworkingApp.Data.Methods.MethodsDesk;
 using CoworkingApp.Data.Methods;
 
 namespace CoworkingApp.Data.Logic
@@ -12,74 +10,96 @@ namespace CoworkingApp.Data.Logic
     public class UserServices
     {
         private UserData _data { get; set; }
-        public UserServices(UserData userData)
-        {
-            _data = userData;
-        }
+        private DeskData _deskData { get; set; }
+        private ReservationData reservationData { get; set; }
+        private Response response { get; set; }
 
-        public (string, bool) ExecuteAction(AdminUser selectedAdminPuesto)
+        public UserServices(UserData dataServices, DeskData deskData)
         {
-            var menuSelected = selectedAdminPuesto switch
-            {
-                AdminUser.Crear => _data.CreateUser(MethodsUser.CreateNewUser()),
-                AdminUser.Editar => EditUsers(),
-                AdminUser.Eliminar => RemoveUsers(),
-                AdminUser.CambiarPassword => ChangePassword(),
-                _ => ("No se ha seleccionado ninguna opcion", false)
+            _data = dataServices;
+            _deskData = deskData;
+            reservationData = new ReservationData();
+            response = new Response() { 
+                message = "Opcion no encontrada"
             };
-            return menuSelected;
         }
-        public (string, bool) EditUsers()
+        public Response ExecuteAction(MenuUser menuUser, User user)
         {
-            WriteLine("Escriba el correo del usuario a editar");
-            var userFound = _data.FindUser(ReadLine());
-            if (userFound == null)
+            response = menuUser switch
             {
-                WriteLine("No se encuentra el correo del usuario ingresado, favor de escibrir un correo valido");
-                userFound = _data.FindUser(ReadLine());
-            }
-            var editData = MethodsUser.EditUser(userFound);
-            var data = _data.EditUser(editData);
-
-            return (data.Item1, data.Item2);
+                MenuUser.ReservarPuesto => ReserveDesk(user),
+                MenuUser.CancelarReserva => CancelReserv(user),
+                MenuUser.VerHistorialReserva => HistoryUser(user),
+                MenuUser.CambiarPassword => ChangePassword(user),
+                _ => response
+            };
+            return response;
         }
-
-        public (string, bool) ChangePassword()
+        public Response ReserveDesk(User user)
         {
-            WriteLine("Escriba el correo del usuario a editar");
-            var userFound = _data.FindUser(ReadLine());
-            if (userFound == null)
+            string deskReservation = string.Empty;
+            var dateSelected = new DateTime();
+            var deskList = _deskData.GetAvaibleDeskList();
+            WriteLine("Puestos disponibles");
+            foreach (var item in deskList)
             {
-                WriteLine("No se encuentra el correo del usuario ingresado, favor de escibrir un correo valido");
-                userFound = _data.FindUser(ReadLine());
+                WriteLine($"Puesto: {item.Number} - {item.Description}");
             }
-            var editData = MethodsUser.ChangePassword(userFound);
-            var data = _data.EditUser(editData);
+            WriteLine("Ingrese el numero del puesto a reservar");
+            var deskFound = _deskData.FindDesk(ReadLine());
+            while(deskFound == null)
+            {
+                WriteLine("No se encontro el puesto ingresado, favor de ingresa un numero de puesto correcto");
+                deskFound = _deskData.FindDesk(ReadLine());
+            }
+            while(dateSelected.Year == 0001)
+            {
+                WriteLine("Ingrese la fecha de reserva en formato (dd-mm-yyyy)");
+                DateTime.TryParseExact(ReadLine(), "dd-MM-yyyy", null, DateTimeStyles.None, out dateSelected);
+            }
+            reservationData.CreateReservation(Createreservation(user.UserId,deskFound.DeskId, dateSelected));
 
-            return (data.Item1, data.Item2);
+            return response;
         }
-
-        public (string,bool) RemoveUsers()
+        public Response CancelReserv(User user)
         {
-            (string, bool) data = ("",false);
-            WriteLine("Escriba el correo del usuario a eliminar");
-            var userFound = _data.FindUser(ReadLine());
-            if (userFound == null)
+            WriteLine("Estas son las resevaciones disponibles");
+            var userReservations = reservationData.GetReservationByUser(user.UserId).ToList();
+            var deskUserList = _deskData.GetAvaibleDeskList().ToList();
+            int indexResevation = 1;
+            foreach (var item in userReservations)
             {
-                WriteLine("No se encuentra el correo del usuario ingresado, favor de escibrir un correo valido");
-                userFound = _data.FindUser(ReadLine());
+                WriteLine($"{indexResevation} - {deskUserList.FirstOrDefault(p => p.DeskId == item.DeskId).Number} - {item.ReservationDate.ToString("dd-MM-yyyy")}");
+                indexResevation++;
             }
-            WriteLine($"¿Esta seguro de querer eliminar a {userFound.Name} {userFound.LastName} - SI / NO?");
-            string opcion = ReadLine();
-            if (opcion.ToUpper() == "SI" || opcion.ToUpper() == "S")
+            WriteLine("Ingrese el numero del puesto");
+            var indexReservationSelected = int.Parse(ReadLine());
+            while (indexReservationSelected < 1 || indexReservationSelected > indexResevation)
             {
-                (data.Item1,data.Item2) = _data.RemoveUser(userFound.UserId);
+                WriteLine("Ingrese el numero de la reservacion que desea eliminar:");
+                indexReservationSelected = int.Parse(ReadLine());
             }
-            else
+            var reservationToDelete = userReservations[indexReservationSelected];
+            reservationData.CancelReservation(reservationToDelete.ReservationId);
+            WriteLine();
+            return response;
+        }
+        public Response HistoryUser(User user)
+        {
+            var historyReservationUser = reservationData.GetReservationsHistoryByUser(user.UserId).ToList();
+            var deskHistoryList = _deskData.GetAllDeskList().ToList();
+            WriteLine("Tus reservas");
+            foreach (var item in historyReservationUser)
             {
-                data = ("No se elimino ningun usuario", false);
+                WriteLine($"{deskHistoryList.FirstOrDefault(p => p.DeskId == item.DeskId).Number} - {item.ReservationDate.ToString("dd-MM-yyyy")} - {(item.ReservationDate > DateTime.Now.Date ? "(Activa)": "(Inactivo)")}");
             }
-            return (data.Item1, data.Item2);
+            return response;
+        }
+        public Response ChangePassword(User user)
+        {
+            var editData = MethodsUser.ChangePassword(user);
+            response = _data.EditUser(editData);
+            return response;
         }
     }
 }

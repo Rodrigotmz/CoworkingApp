@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CoworkingApp.Model.Enumerations;
 
 namespace CoworkingApp.Data
 {
@@ -21,11 +22,8 @@ namespace CoworkingApp.Data
             jsonManager.SaveCollection(deskCollection);
             return ("Se creo el escritorio con exito",true);
         }
-        public Desk FindDesk(string numberDesk)
-        {
-            var userCollection = jsonManager.GetCollection();
-            return userCollection.FirstOrDefault(p => p.Number == numberDesk);
-        }
+        public Desk FindDesk(string numberDesk) => jsonManager.GetCollection().FirstOrDefault(p => p.Number == numberDesk);
+
         public (string, bool) EditDesk(Desk desk)
         {
             var deskCollection = jsonManager.GetCollection();
@@ -49,5 +47,7 @@ namespace CoworkingApp.Data
                 return ("El usuario no se pudo remover", false);
             }
         }
+        public IEnumerable<Desk> GetAvaibleDeskList() => jsonManager.GetCollection().Where(p => p.DeskStatus == DeskStatus.Active);
+        public IEnumerable<Desk> GetAllDeskList() => jsonManager.GetCollection();
     }
 }

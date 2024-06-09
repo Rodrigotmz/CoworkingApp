@@ -10,8 +10,8 @@ namespace CoworkingApp.Model
     public class Desk
     {
         public Guid DeskId { get; set; } = Guid.NewGuid();
-        public string Number { get; set; }
-        public string Description { get; set; }
+        public string? Number { get; set; }
+        public string? Description { get; set; }
         public DeskStatus DeskStatus { get; set; } = DeskStatus.Active;
     }
 }

@@ -6,15 +6,18 @@ using System.Text;
 using System.Threading.Tasks;
 using CoworkingApp.Data.Tools;
 using CoworkingApp.Data.Methods;
+using static System.Console;
 
 namespace CoworkingApp.Data
 {
     public class UserData
     {
         private JsonManager<User> jsManager;
+        private Response response { get; set; }
         public UserData()
         {
             jsManager = new JsonManager<User>();
+            response = new Response();
         }
         public bool CreateAdmin()
         {
@@ -39,17 +42,16 @@ namespace CoworkingApp.Data
             }
             return true;
         }
-        public bool Login(string User, string Password, bool isAdmin = false)
+        public User Login(string User, string Password, bool isAdmin = false)
         {
             var userCollection = jsManager.GetCollection();
             var passwordEncript = EncryptData.EncryptText(Password);
             if (isAdmin) User = User;
-            var userFound = userCollection.FirstOrDefault(p => p.Email == User && p.Password == passwordEncript);
-            if(userFound != null) return true;
-            return false;
+            var userFound = userCollection.FirstOrDefault(p => p.Email == User && p.Password == passwordEncript);           
+            return userFound;
         }
 
-        public (string, bool) CreateUser(User newUser)
+        public Response CreateUser(User newUser)
         {
             try
             {
@@ -57,11 +59,14 @@ namespace CoworkingApp.Data
                 var userCollection = jsManager.GetCollection();
                 userCollection.Add(newUser);
                 jsManager.SaveCollection(userCollection);
-                return ("Usuario creado exitosamente",true);
+                response.message = "Usuario creado exitosamente";
+                response.option = true;
+                return response;
             }
             catch
             {
-                return ("No se pudo crear el usuario, por favor intente más tarde",false);
+                response.message = "No se pudo crear el usuario, por favor intente más tarde";
+                return response;
             }
         }
         public User FindUser(string email)
@@ -69,7 +74,7 @@ namespace CoworkingApp.Data
             var userCollection = jsManager.GetCollection();
             return userCollection.FirstOrDefault(p => p.Email == email);
         }
-        public (string, bool) EditUser(User editUser)
+        public Response EditUser(User editUser)
         {
             try
             {
@@ -78,14 +83,17 @@ namespace CoworkingApp.Data
                 var indexUser = userCollection.FindIndex(p => p.UserId == editUser.UserId);
                 userCollection[indexUser] = editUser;
                 jsManager.SaveCollection(userCollection);
-                return ("Cambios realizados con exito", true);
+                response.message = "Cambios realizados con exito";
+                response.option = true;
+                return response;
             }
             catch
             {
-                return ("No se pudo editar el usuario seleccionado, por favor intente más tarde", false);
+                response.message = "No se pudo editar el usuario seleccionado, por favor intente más tarde";
+                return response;
             }
         }
-        public (string,bool) RemoveUser(Guid userId)
+        public Response RemoveUser(Guid userId)
         {
             try
             {
@@ -93,12 +101,17 @@ namespace CoworkingApp.Data
                 var idUser = userCollection.Find(p => p.UserId == userId);
                 userCollection.Remove(idUser);
                 jsManager.SaveCollection(userCollection);
-                return ("Usuario removido con exito", true);
+                response.message = "Usuario removido con exito";
+                response.option = true;
+                return response;
             }
             catch
             {
-                return ("El usuario no se pudo remover", false);
+                response.message = "El usuario no se pudo remover";
+                return response;
             }
         }
+        
     }
 }
+ 
