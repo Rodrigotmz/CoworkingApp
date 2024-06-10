@@ -40,7 +40,7 @@ namespace CoworkingApp.Data
         {
             var reservCollection = jsonManager.GetCollection();
             jsonManager.SaveCollection(reservCollection);
-            return reservCollection.Where(p => p.UserId == userId && p.ReservationDate.Date >= DateTime.Now.Date);
+            return reservCollection.Where(p => p.UserId == userId);
         }
     }
     

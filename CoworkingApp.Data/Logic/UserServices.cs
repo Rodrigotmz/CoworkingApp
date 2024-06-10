@@ -91,7 +91,9 @@ namespace CoworkingApp.Data.Logic
             WriteLine("Tus reservas");
             foreach (var item in historyReservationUser)
             {
-                WriteLine($"{deskHistoryList.FirstOrDefault(p => p.DeskId == item.DeskId).Number} - {item.ReservationDate.ToString("dd-MM-yyyy")} - {(item.ReservationDate > DateTime.Now.Date ? "(Activa)": "(Inactivo)")}");
+                ForegroundColor = item.ReservationDate > DateTime.Now.Date ? ConsoleColor.Green : ConsoleColor.Gray;
+                WriteLine($"{deskHistoryList.FirstOrDefault(p => p.DeskId == item.DeskId).Number} - {item.ReservationDate.ToString("dd-MM-yyyy")} - {(item.ReservationDate.Date > DateTime.Now.Date ? "(Activa)": "")}");
+                ResetColor();
             }
             return response;
         }

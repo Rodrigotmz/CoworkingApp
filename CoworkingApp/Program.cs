@@ -5,6 +5,7 @@ using CoworkingApp.Data.Tools;
 using CoworkingApp.Model;
 using static System.Console;
 using static CoworkingApp.Data.Tools.MessageColors;
+using static CoworkingApp.Data.Tools.SpinerManager;
 
 
 string rolSelected = "";
@@ -71,6 +72,7 @@ do
     else if (Enum.Parse<UserRoles>(rolSelected) == UserRoles.Usuario)
     {
         Activeuser = adminLogicServices.Login(false);
+        ShowSpinner();
         string menuUsuarioSelec = "0";
         while (!listOption.Contains(menuUsuarioSelec))
         {
