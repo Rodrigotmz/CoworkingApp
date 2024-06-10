@@ -4,6 +4,7 @@ using System.Globalization;
 using static System.Console;
 using static CoworkingApp.Data.Methods.MethodsDesk;
 using CoworkingApp.Data.Methods;
+using static CoworkingApp.Data.Tools.MethodsGen;
 
 namespace CoworkingApp.Data.Logic
 {
@@ -41,10 +42,17 @@ namespace CoworkingApp.Data.Logic
             var dateSelected = new DateTime();
             var deskList = _deskData.GetAvaibleDeskList();
             WriteLine("Puestos disponibles");
+            int codigoWidth = 20;
+            // Crear la línea de borde
+            string borderLine = "+" + new string('-', codigoWidth) + "+" + new string('-', codigoWidth) + "+";
+            WriteLine(borderLine);
+            WriteLine($"|{"Puesto".PadRight(codigoWidth)}|{"Descripcion".PadRight(codigoWidth)}|");
+            WriteLine(borderLine);
             foreach (var item in deskList)
             {
-                WriteLine($"Puesto: {item.Number} - {item.Description}");
+                PrintWithColor(item.Number, item.Description, codigoWidth);
             }
+            WriteLine(borderLine);
             WriteLine("Ingrese el numero del puesto a reservar");
             var deskFound = _deskData.FindDesk(ReadLine());
             while(deskFound == null)
@@ -89,12 +97,17 @@ namespace CoworkingApp.Data.Logic
             var historyReservationUser = reservationData.GetReservationsHistoryByUser(user.UserId).ToList();
             var deskHistoryList = _deskData.GetAllDeskList().ToList();
             WriteLine("Tus reservas");
+            int nombreWidth = 20;
+            string borderLine = "+" + new string('-', nombreWidth) + "+" + new string('-', nombreWidth) + "+" + new string('-', nombreWidth) + "+";
+            WriteLine(borderLine);
+            WriteLine($"|{"Numero".PadRight(nombreWidth)}|{"Fecha".PadRight(nombreWidth)}|{"Estatus".PadRight(nombreWidth)}|");
+            WriteLine(borderLine);
             foreach (var item in historyReservationUser)
             {
-                ForegroundColor = item.ReservationDate > DateTime.Now.Date ? ConsoleColor.Green : ConsoleColor.Gray;
-                WriteLine($"{deskHistoryList.FirstOrDefault(p => p.DeskId == item.DeskId).Number} - {item.ReservationDate.ToString("dd-MM-yyyy")} - {(item.ReservationDate.Date > DateTime.Now.Date ? "(Activa)": "")}");
-                ResetColor();
+                bool color = item.ReservationDate > DateTime.Now.Date ? true: false;
+                PrintWithColors(deskHistoryList.FirstOrDefault(p => p.DeskId == item.DeskId).Number, item.ReservationDate.ToString("dd-MM-yyyy"), (item.ReservationDate.Date > DateTime.Now.Date ? "(Activa)" : "(Pasada)"), color, nombreWidth);
             }
+            WriteLine(borderLine);
             return response;
         }
         public Response ChangePassword(User user)

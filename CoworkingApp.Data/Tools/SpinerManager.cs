@@ -12,6 +12,7 @@ namespace CoworkingApp.Data.Tools
     {
         public static void ShowSpinner()
         {
+            ForegroundColor = ConsoleColor.DarkBlue;
             for (int i = 0; i < 50; i++)
             {
                 switch (i%4)
@@ -32,6 +33,7 @@ namespace CoworkingApp.Data.Tools
                 SetCursorPosition(CursorLeft-1, CursorTop);
                 Sleep(150);
             }
+            ResetColor();
         }
     }
 }
